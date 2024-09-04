@@ -1,54 +1,47 @@
 services:
   stats-server:
-    build:
-      context: ./ewm-stat-service/stat-server
+    build: ./ewm-stat-service/stats-server
     container_name: stats-server
     ports:
       - "9090:9090"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats  # Используем имя контейнера и внутренний порт
+      - HOST=stats-db
+      - PORT=5432
+      - NAME=stats-db
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
     depends_on:
       stats-db:
         condition: service_healthy
 
-  ewm-service:
-    build:
-      context: ./ewm-main-service
-    container_name: ewn_main-service_container
+
+  enm-service:
+    build: ./ewm-main-service
+    container_name: ewn_service_container
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewn  # Используем имя контейнера и внутренний порт
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=mypass
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-    depends_on:
-      - ewm-db
-
-  ewm-db:
-    image: postgres:16.1
-    container_name: ewn-db
-    environment:
-      POSTGRES_DB: ewn
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: mypass
-    ports:
-      - "2323:5432"
 
   stats-db:
     image: postgres:16.1
     container_name: stats-db
-    environment:
-      POSTGRES_DB: stats
-      POSTGRES_USER: dbuser
-      POSTGRES_PASSWORD: 12345
     ports:
       - "6542:5432"
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=stats-db
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
+
+  ewm-db:
+    image: postgres:16.1
+    container_name: ewn-db
+    ports:
+      - "2323:5432"
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=ewn
