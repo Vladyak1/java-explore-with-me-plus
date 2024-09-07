@@ -5,10 +5,11 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
-public class ViewStats {
+public class EndpointHit {
     private String app;
     private String uri;
-    private long hits;
+    private String ip;
+    private String timestamp;
 }
