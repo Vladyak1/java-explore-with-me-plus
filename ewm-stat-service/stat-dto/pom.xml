@@ -13,7 +13,7 @@
     <artifactId>stat-dto</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>stats-dto</name>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
