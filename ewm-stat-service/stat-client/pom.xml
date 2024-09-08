@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>stat-client</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>stats-client</name>
 
