@@ -9,7 +9,7 @@ import ru.practicum.category.dto.CategoryDtoRequest;
 import ru.practicum.category.dto.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.errors.DataConflictRequest;
+//import ru.practicum.errors.DataConflictRequest;
 import ru.practicum.errors.NotFoundException;
 //import ru.practicum.event.service.EventService;
 
