@@ -1,55 +1,42 @@
 package ru.practicum.category.controller;
 
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.CategoryDtoRequest;
 import ru.practicum.category.service.CategoryService;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
-public class CategoryController {
-
+@Validated
+@RequestMapping("/admin/categories")
+@Slf4j
+public class AdminCategoryController {
     private final CategoryService categoryService;
 
-    // Часть admin
-
-    @PostMapping(value = "/admin/categories")
+    @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDtoRequest categoryDtoRequest) {
+        log.info("Calling the POST request to /admin/categories endpoint");
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(categoryDtoRequest));
     }
 
-    @DeleteMapping(value = "/admin/categories/{catId}")
+    @DeleteMapping(value = "/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@NonNull @PathVariable Long catId) {
+        log.info("Calling the DELETE request to /admin/categories/{catId} endpoint");
         categoryService.deleteCategory(catId);
     }
 
-    @PatchMapping(value = "/admin/categories/{catId}")
+    @PatchMapping(value = "/{catId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable long catId,
                                                       @Valid @RequestBody CategoryDtoRequest categoryDtoRequest) {
+        log.info("Calling the PATCH request to /admin/categories/{catId} endpoint");
         return ResponseEntity.ok().body(categoryService.updateCategory(catId, categoryDtoRequest));
-    }
-
-    // Часть public
-
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategoryDto>> getAllCategories(
-            @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
-            @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories(from, size));
-    }
-
-    @GetMapping("/categories/{catId}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable Long catId) {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategoryById(catId));
     }
 }
