@@ -39,14 +39,14 @@ public class CategoryServiceImpl implements CategoryService {
         Optional<Category> category = categoryRepository.findById(catId);
         if (category.isEmpty()) {
             throw new NotFoundException("Category with id = " + catId + " was not found");
+        } else {
+            categoryRepository.deleteById(catId);
+            log.info("Категория с id = {}, успешно удалена", catId);
         }
 //        else if (eventService.findByCategory(category.get()).isPresent()) {
 //            throw new DataConflictRequest("Events are associated with the id = " + catId + " category");
 //        }
-        else {
-            categoryRepository.deleteById(catId);
-            log.info("Категория с id = {}, успешно удалена", catId);
-        }
+
     }
 
     @Transactional
