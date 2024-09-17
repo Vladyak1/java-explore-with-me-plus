@@ -23,4 +23,7 @@ public class UserDtoReceived {
     @NotBlank(groups = {Validator.Create.class})
     @Size(min = 2, max = 250, groups = {Validator.Create.class})
     private String name;
+
+
+    private Boolean isAdmin;
 }

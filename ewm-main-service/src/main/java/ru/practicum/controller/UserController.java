@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.AdminUserDto;
 import ru.practicum.dto.UserDtoReceived;
 import ru.practicum.dto.Validator;
+import ru.practicum.model.User;
 import ru.practicum.service.UserService;
 import ru.practicum.mapper.UserMapper;
 
@@ -28,8 +29,11 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<AdminUserDto> createUser(@RequestBody @Validated({Validator.Create.class}) UserDtoReceived userDto) {
-        log.info("Calling the POST request to /admin/users endpoint");
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(UserMapper.toUser(userDto)));
+        log.info("Calling the POST request to /admin/users endpoint {}", userDto);
+        User user = UserMapper.toUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.createUser(user));
+
     }
 
 

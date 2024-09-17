@@ -7,6 +7,8 @@ import lombok.*;
 @Data
 @Builder
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -21,13 +23,6 @@ public class User {
     @Column(name = "email")
     private String email;
 
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
+    @Column(name = "is_admin")
+    private Boolean isAdmin;
 }

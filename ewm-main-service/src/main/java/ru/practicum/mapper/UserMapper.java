@@ -25,6 +25,7 @@ public class UserMapper {
         return User.builder()
                 .email(userDto.getEmail())
                 .name(userDto.getName())
+                .isAdmin(userDto.getIsAdmin())
                 .build();
     }
 

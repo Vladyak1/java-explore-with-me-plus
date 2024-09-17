@@ -17,6 +17,7 @@ import ru.practicum.repository.UserMainServiceRepository;
 import ru.practicum.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +62,9 @@ public class UserServiceImpl implements UserService {
             log.info("Result: idList is empty, returning all users size = {}", allUsers.size());
             return allUsers;
         }
+
+        idList.forEach(this::findUserById);
+
         List<User> users = userMainServiceRepository.findAllById(idList, pageable);
         if (users.isEmpty()) {
             return List.of();
@@ -69,7 +73,19 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-    public static PageRequest createPageRequestAsc(int from, int size) {
+    private static PageRequest createPageRequestAsc(int from, int size) {
         return PageRequest.of(from, size, Sort.Direction.ASC, "id");
+    }
+
+    private void findUserById(Long id) {
+        Optional<User> user = userMainServiceRepository.findById(id);
+
+        if (user.isEmpty()) {
+            log.error("User with id {} not found", id);
+            throw new NotFoundException("User with id " + id + " not found");
+        }
+
+        log.info("User with id {} found", id);
+
     }
 }
