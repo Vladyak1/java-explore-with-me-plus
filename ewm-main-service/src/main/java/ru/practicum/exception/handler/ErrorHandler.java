@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RestControllerAdvice
-public class MainServiceHandler {
+public class ErrorHandler {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
