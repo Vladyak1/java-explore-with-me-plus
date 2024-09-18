@@ -13,7 +13,7 @@ public interface UserMainServiceRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u " +
             "FROM User u " +
-            "WHERE u.id IN ?ids ")
+            "WHERE u.id IN :ids ")
     List<User> findAllById(@Param("ids") List<Long> id, Pageable pageable);
 
     @Query("SELECT u " +
