@@ -1,4 +1,4 @@
-package ru.practicum.category.service;
+package ru.practicum.category.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +9,10 @@ import ru.practicum.category.dto.CategoryDtoRequest;
 import ru.practicum.category.dto.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-//import ru.practicum.errors.DataConflictRequest;
-import ru.practicum.errors.NotFoundException;
-//import ru.practicum.event.service.EventService;
+import ru.practicum.category.service.CategoryService;
+import ru.practicum.exception.DataConflictRequest;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.event.service.EventService;
 
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -25,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-//    private final EventService eventService;
+    private final EventService eventService;
 
     // Часть admin
 
@@ -39,14 +40,12 @@ public class CategoryServiceImpl implements CategoryService {
         Optional<Category> category = categoryRepository.findById(catId);
         if (category.isEmpty()) {
             throw new NotFoundException("Category with id = " + catId + " was not found");
+        } else if (eventService.findByCategory(category.get()).isPresent()) {
+            throw new DataConflictRequest("Events are associated with the id = " + catId + " category");
         } else {
             categoryRepository.deleteById(catId);
             log.info("Категория с id = {}, успешно удалена", catId);
         }
-//        else if (eventService.findByCategory(category.get()).isPresent()) {
-//            throw new DataConflictRequest("Events are associated with the id = " + catId + " category");
-//        }
-
     }
 
     @Transactional

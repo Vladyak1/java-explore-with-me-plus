@@ -77,7 +77,8 @@ public class UserServiceImpl implements UserService {
         return PageRequest.of(from, size, Sort.Direction.ASC, "id");
     }
 
-    private void findUserById(Long id) {
+    @Override
+    public User findUserById(Long id) {
         Optional<User> user = userMainServiceRepository.findById(id);
 
         if (user.isEmpty()) {
@@ -86,6 +87,6 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("User with id {} found", id);
-
+        return user.get();
     }
 }
