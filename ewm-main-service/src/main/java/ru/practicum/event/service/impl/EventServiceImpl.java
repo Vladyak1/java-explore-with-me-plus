@@ -456,6 +456,7 @@ public class EventServiceImpl implements EventService {
     }
 
     // Получение event по id
+
     public Event getEventById(Long eventId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
@@ -463,6 +464,7 @@ public class EventServiceImpl implements EventService {
         }
         throw new NotFoundException("Event with ID = " + eventId + " was not found");
     }
+
 
     public void addRequestToEvent(Event event) {
         eventRepository.save(event);

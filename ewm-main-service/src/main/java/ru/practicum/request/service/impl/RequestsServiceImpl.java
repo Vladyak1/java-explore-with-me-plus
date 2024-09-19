@@ -1,6 +1,8 @@
 package ru.practicum.request.service.impl;
 
+
 import com.querydsl.core.types.dsl.BooleanExpression;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
@@ -79,6 +81,7 @@ public class RequestsServiceImpl implements RequestsService {
         return RequestsMapper.REQUESTS_MAPPER.toParticipationRequestDto(requestsRepository.save(request));
     }
 
+
     @Override
     public List<ParticipationRequest> getAllByEventId(Long eventId) {
         return requestsRepository.findAllByEventId(eventId);
@@ -95,5 +98,6 @@ public class RequestsServiceImpl implements RequestsService {
     public List<ParticipationRequest> saveAll(List<ParticipationRequest> requests) {
         return requestsRepository.saveAll(requests);
     }
+
 
 }

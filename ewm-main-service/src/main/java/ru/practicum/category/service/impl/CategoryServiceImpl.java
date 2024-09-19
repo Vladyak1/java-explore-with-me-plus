@@ -1,5 +1,6 @@
 package ru.practicum.category.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -13,8 +14,8 @@ import ru.practicum.category.service.CategoryService;
 import ru.practicum.exception.DataConflictRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.event.service.EventService;
+import ru.practicum.exception.NotFoundException;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
