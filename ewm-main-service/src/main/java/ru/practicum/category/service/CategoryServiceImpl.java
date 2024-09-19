@@ -1,5 +1,6 @@
 package ru.practicum.category.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -9,11 +10,8 @@ import ru.practicum.category.dto.CategoryDtoRequest;
 import ru.practicum.category.dto.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-//import ru.practicum.errors.DataConflictRequest;
-import ru.practicum.errors.NotFoundException;
-//import ru.practicum.event.service.EventService;
+import ru.practicum.exception.NotFoundException;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
