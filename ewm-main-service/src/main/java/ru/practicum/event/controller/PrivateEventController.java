@@ -57,13 +57,13 @@ public class PrivateEventController {
                 updateEventUserRequest));
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    @GetMapping("/{eventId}/requests")
     public ResponseEntity<List<ParticipationRequestDto>> getRequestEventByUser(@PathVariable Long userId,
                                                                                @PathVariable Long eventId) {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getRequestEventByUser(userId, eventId));
     }
 
-    @PatchMapping(value = "/users/{userId}/events/{eventId}/requests")
+    @PatchMapping(value = "/{eventId}/requests")
     public ResponseEntity<EventRequestStatusUpdateResult> changeRequestEventStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,

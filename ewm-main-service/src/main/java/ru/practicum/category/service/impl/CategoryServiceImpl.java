@@ -14,7 +14,7 @@ import ru.practicum.category.service.CategoryService;
 import ru.practicum.exception.DataConflictRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.event.service.EventService;
-import ru.practicum.exception.NotFoundException;
+
 
 import java.util.List;
 import java.util.Optional;

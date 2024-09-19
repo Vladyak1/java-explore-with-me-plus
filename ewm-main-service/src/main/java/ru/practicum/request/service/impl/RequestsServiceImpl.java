@@ -4,6 +4,7 @@ package ru.practicum.request.service.impl;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
@@ -92,7 +93,7 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     public Iterable<ParticipationRequest> findAll(BooleanExpression conditions) {
-        return requestsRepository.findAll(conditions);
+        return requestsRepository.findAll((Pageable) conditions);
     }
 
     public List<ParticipationRequest> saveAll(List<ParticipationRequest> requests) {

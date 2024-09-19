@@ -26,4 +26,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
     Optional<Event> findByIdAndState(Long id, EventState state);
 
     Optional<Event> findByCategory(Category category);
+
+
 }
