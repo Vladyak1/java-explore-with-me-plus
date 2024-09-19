@@ -204,7 +204,7 @@ public class EventServiceImpl implements EventService {
                                                                    EventRequestStatusUpdateRequest requestUpdate) {
         userService.findUserById(userId);
         Event event = getEventById(eventId);
-        if (!Objects.equals(event.getInitiator().getId(), userId) || event.getInitiator().getId() != userId) {
+        if (event.getInitiator().getId() != userId) {
             throw new RuntimeException("Пользователь с ID = " + userId + " не является инициатором события с ID = " + eventId);
         }
 
