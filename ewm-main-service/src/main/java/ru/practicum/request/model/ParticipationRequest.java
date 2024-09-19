@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "PARTICIPATION_REQUESTS")
+@Table(name = "requests")
 public class ParticipationRequest {
 
     @Id
@@ -26,7 +26,7 @@ public class ParticipationRequest {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE NOT NULL")
+    @Column(name = "created_on", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE NOT NULL")
     private LocalDateTime created;
 
     @ManyToOne
