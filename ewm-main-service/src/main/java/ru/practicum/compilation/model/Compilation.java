@@ -22,7 +22,7 @@ public class Compilation {
     private Boolean isPinned;
     private String title;
     @ManyToMany
-    @JoinTable(name = "compilation_events",
+    @JoinTable(name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private List<Event> events;
