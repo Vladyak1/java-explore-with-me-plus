@@ -13,7 +13,7 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.ParticipationRequest;
-import ru.practicum.request.model.RequestStatus;
+import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.request.model.mapper.RequestsMapper;
 import ru.practicum.request.request.RequestsRepository;
 import ru.practicum.request.service.RequestsService;
