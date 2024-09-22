@@ -33,6 +33,8 @@ public interface EventService {
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 
 
+    List<EventShortDto> getPublicEvents(EventPublicParams param);
+
     // Часть public
     List<EventShortDto> getAllEventsByUser(EventPublicParams eventPublicParams, HttpServletRequest httpServletRequest);
 

@@ -2,6 +2,7 @@ package ru.practicum.event.model;
 
 import lombok.*;
 import ru.practicum.category.model.Category;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.user.model.User;
 
 import jakarta.persistence.*;

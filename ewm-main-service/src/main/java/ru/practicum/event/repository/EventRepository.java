@@ -7,13 +7,13 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.category.model.Category;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.enums.EventState;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
+public interface EventRepository extends JpaRepository<Event, Long>,  CustomizedEventStorage {
 
     @Query("select ev " +
             "from Event ev " +

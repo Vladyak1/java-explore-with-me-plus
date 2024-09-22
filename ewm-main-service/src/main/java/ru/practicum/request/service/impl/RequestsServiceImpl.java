@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;

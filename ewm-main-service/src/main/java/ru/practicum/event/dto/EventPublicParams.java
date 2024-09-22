@@ -1,7 +1,7 @@
 package ru.practicum.event.dto;
 
 import lombok.*;
-import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;

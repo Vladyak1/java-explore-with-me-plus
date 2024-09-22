@@ -22,4 +22,7 @@ public interface EventMapper {
 
     @Mapping(target = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     EventShortDto toEventShortDto(Event event);
+
+    @Mapping(source = "views", target = "views")
+    EventShortDto toShortDto(Event event, Long views);
 }

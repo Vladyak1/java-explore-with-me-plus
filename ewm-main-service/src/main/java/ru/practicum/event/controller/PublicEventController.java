@@ -10,11 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.Formatter;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventPublicParams;
 import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
+import ru.practicum.stat.service.StatsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,35 +29,42 @@ import java.util.List;
 public class PublicEventController {
 
     private final EventService eventService;
+    private final StatsService statsService;
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getAllEvents(
-            @RequestParam(required = false) String text,
+            @RequestParam(defaultValue = "") String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String  rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String  rangeEnd,
             @RequestParam(defaultValue = "false") boolean onlyAvailable,
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
             @Positive @RequestParam(required = false, defaultValue = "10") int size,
-            HttpServletRequest httpServletRequest
+            HttpServletRequest request
     ) {
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, Formatter.getFormatter())
+                : LocalDateTime.now();
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, Formatter.getFormatter())
+                : LocalDateTime.now().plusYears(20);
+
         EventPublicParams eventPublicParams = EventPublicParams.builder()
                 .state(EventState.PUBLISHED)
                 .text(text)
                 .categories(categories)
                 .paid(paid)
-                .rangeStart(rangeStart)
-                .rangeEnd(rangeEnd)
+                .rangeStart(start)
+                .rangeEnd(end)
                 .onlyAvailable(onlyAvailable)
                 .from(from)
                 .size(size)
                 .sort(sort)
                 .build();
-
+        List<EventShortDto> events = eventService.getPublicEvents(eventPublicParams);
+        statsService.createStats(request.getRequestURI(), request.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.OK)
-                .body(eventService.getAllEventsByUser(eventPublicParams, httpServletRequest));
+                .body(events);
     }
 
     @GetMapping("/{id}")

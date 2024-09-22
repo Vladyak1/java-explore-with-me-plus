@@ -1,14 +1,20 @@
 package ru.practicum.event.service.impl;
 
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.service.CategoryService;
+import ru.practicum.event.model.enums.EventSort;
+import ru.practicum.event.model.enums.EventState;
+import ru.practicum.event.model.enums.StateActionForAdmin;
+import ru.practicum.event.model.enums.StateActionForUser;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.service.EventService;
 import ru.practicum.exception.DataConflictRequest;
@@ -24,6 +30,7 @@ import ru.practicum.request.model.*;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.RequestStatus;
 import ru.practicum.request.service.RequestsService;
+import ru.practicum.stat.service.StatsService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 
@@ -46,17 +53,19 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventMapper eventMapper;
     private final RequestsMapper requestMapper;
+    private final StatsService statsService;
 
     @Autowired
     @Lazy
     public EventServiceImpl(EventRepository eventRepository, UserService userService, RequestsService requestService,
-                            CategoryService categoryService, EventMapper eventMapper, RequestsMapper requestMapper) {
+                            CategoryService categoryService, EventMapper eventMapper, RequestsMapper requestMapper, StatsService statsService) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.requestService = requestService;
         this.categoryService = categoryService;
         this.eventMapper = eventMapper;
         this.requestMapper = requestMapper;
+        this.statsService = statsService;
     }
 
     // Часть private
@@ -243,7 +252,7 @@ public class EventServiceImpl implements EventService {
     public List<EventFullDto> getAllEventsByAdmin(EventAdminParams eventAdminParams) {
 
         //формируем условие выборки
-        BooleanExpression conditions = makeEventsQueryConditionsForAdmin(eventAdminParams);
+       /* BooleanExpression conditions = makeEventsQueryConditionsForAdmin(eventAdminParams);
 
         //настройка размера страницы
         PageRequest pageRequest = PageRequest.of(
@@ -258,6 +267,9 @@ public class EventServiceImpl implements EventService {
 
         log.info("События успешно выгружены");
         return eventsFullDto;
+
+        */
+        return null;
     }
 
     @Transactional
@@ -310,31 +322,69 @@ public class EventServiceImpl implements EventService {
         return eventFullDto;
     }
 
+    @Override
+    public List<EventShortDto> getPublicEvents(EventPublicParams param) {
+        log.info("Запрос получить опубликованные события");
+
+        if (param.getRangeStart().isAfter(param.getRangeEnd())) {
+            log.error("NotValid. При поиске опубликованных событий rangeStart после rangeEnd.");
+            throw new InvalidRequestException("The start of the range must be before the end of the range.");
+        }
+
+        List<Event> events = eventRepository.searchPublicEvents(param);
+
+        Comparator<EventShortDto> comparator = Comparator.comparing(EventShortDto::getId);
+
+        if ((param.getSort() != null) && (param.getSort().equals(EventSort.EVENT_DATE))) {
+            comparator = Comparator.comparing(EventShortDto::getEventDate);
+        } else if ((param.getSort() != null) && (param.getSort().equals(EventSort.VIEWS))) {
+            comparator = Comparator.comparing(EventShortDto::getViews, Comparator.reverseOrder());
+        }
+
+        Map<Long, Long> view = getView(events, false);
+        return events.stream()
+                .map(e -> {
+                    assert eventMapper != null;
+                    return eventMapper.toShortDto(e, view.getOrDefault(e.getId(), 0L));
+                })
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, Long> getView(List<Event> events, boolean unique) {
+        if (!events.isEmpty()) {
+            List<Long> eventsId = events.stream()
+                    .map(Event::getId)
+                    .collect(Collectors.toList());
+            return statsService.getView(eventsId, unique);
+        } else return new HashMap<>();
+    }
 
     // Часть public
-
     public List<EventShortDto> getAllEventsByUser(EventPublicParams request, HttpServletRequest httpServletRequest) {
 
-        if (request.getRangeStart() != null && request.getRangeEnd() != null
+       /* if (request.getRangeStart() != null && request.getRangeEnd() != null
                 && request.getRangeStart().isAfter(request.getRangeEnd())) {
             throw new InvalidRequestException("The start date of the event to be modified must be no earlier " +
                     "than one hour from the date of publication.");
         }
 
-        //формируем условие выборки
-        BooleanExpression conditions = makeEventsQueryConditionsForPublic(request);
+        // Создаем условия выборки
+        Predicate conditions = makeEventsQueryConditionsForPublic(request);
 
-        //настройка размера страницы и типа сортировки
-        PageRequest pageRequest = PageRequest.of(
-                request.getFrom() / request.getSize(), request.getSize());
+        // Пагинация и сортировка
+        PageRequest pageRequest = PageRequest.of(request.getFrom() / request.getSize(), request.getSize());
 
-        //запрашиваем события из базы
-        List<Event> events = eventRepository.findAll(conditions, pageRequest).getContent();
+        // Выполняем запрос в репозиторий с условиями и пагинацией
+        Page<Event> eventsPage = eventRepository.findAll(conditions, pageRequest);
+        List<Event> events = eventsPage.getContent();
 
-        //запрашиваем количество одобренных заявок на участие в каждом событии
+        // Обработка результатов
         Map<Long, Long> eventToRequestsCount = getEventRequests(events);
 
-        List<EventShortDto> eventsShortDto = events.stream().map(eventMapper::toEventShortDto).collect(Collectors.toList());
+        List<EventShortDto> eventsShortDto = events.stream()
+                .map(eventMapper::toEventShortDto)
+                .collect(Collectors.toList());
 
         for (EventShortDto eventShortDto : eventsShortDto) {
             eventShortDto.setConfirmedRequests(eventToRequestsCount.get(eventShortDto.getId()));
@@ -342,7 +392,12 @@ public class EventServiceImpl implements EventService {
 
         log.info("События успешно выгружены");
         return eventsShortDto.stream().sorted(new EventSortByEventDate()).collect(Collectors.toList());
+
+        */
+        return null;
     }
+
+
 
     public EventFullDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
 
@@ -421,65 +476,39 @@ public class EventServiceImpl implements EventService {
     }
 
     // Собираем условие по которому будем выбирать события из базы данных для публичного запроса
-    private static BooleanExpression makeEventsQueryConditionsForPublic(EventPublicParams request) {
+    private Predicate makeEventsQueryConditionsForPublic(EventPublicParams request) {
         QEvent event = QEvent.event;
+        BooleanExpression condition = event.isNotNull(); // Базовое условие
 
-        List<BooleanExpression> conditions = new ArrayList<>();
-
-        // поиск фрагмента текста в аннотации, описании и заголовке
-        if (request.getText() != null && !request.getText().isBlank()) {
-            String textToSearch = request.getText();
-            conditions.add(
-                    event.title.containsIgnoreCase(textToSearch)
-                            .or(event.annotation.containsIgnoreCase(textToSearch))
-                            .or(event.description.containsIgnoreCase(textToSearch))
+        if (request.getText() != null && !request.getText().isEmpty()) {
+            String searchText = "%" + request.getText().toLowerCase() + "%";
+            condition = condition.and(
+                    event.title.likeIgnoreCase(searchText)
+                            .or(event.annotation.likeIgnoreCase(searchText))
+                            .or(event.description.likeIgnoreCase(searchText))
             );
         }
 
-        // фильтрация по списку категорий
+        // Добавление других условий фильтрации (категории, платность и т.д.)
         if (request.getCategories() != null && !request.getCategories().isEmpty()) {
-            conditions.add(
-                    event.category.id.in(request.getCategories())
-            );
+            condition = condition.and(event.category.id.in(request.getCategories()));
         }
 
-        // фильтрация по флагу платное/бесплатное событие
         if (request.getPaid() != null) {
-            conditions.add(
-                    event.paid.eq(request.getPaid())
-            );
+            condition = condition.and(event.paid.eq(request.getPaid()));
         }
 
-        // фильтрация по временному диапазону, если не указано начало, то выборку производим начиная с настоящего
-        // времени только в будущее
-        LocalDateTime rangeStart;
         if (request.getRangeStart() != null) {
-            rangeStart = request.getRangeStart();
-        } else {
-            rangeStart = LocalDateTime.now();
+            condition = condition.and(event.eventDate.goe(request.getRangeStart()));
         }
-        conditions.add(
-                event.eventDate.goe(rangeStart)
-        );
 
         if (request.getRangeEnd() != null) {
-            conditions.add(
-                    event.eventDate.loe(request.getRangeEnd())
-            );
+            condition = condition.and(event.eventDate.loe(request.getRangeEnd()));
         }
 
-        // фильтрация событий удовлетворяющих данному состоянию
-        if (request.getState() != null) {
-            conditions.add(
-                    QEvent.event.state.in(request.getState())
-            );
-        }
-
-        return conditions
-                .stream()
-                .reduce(BooleanExpression::and)
-                .get();
+        return condition;
     }
+
 
     // Собираем количество одобренных заявок для каждого события
     private Map<Long, Long> getEventRequests(List<Event> events) {
