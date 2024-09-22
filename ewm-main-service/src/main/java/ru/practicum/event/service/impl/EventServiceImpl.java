@@ -334,10 +334,13 @@ public class EventServiceImpl implements EventService {
 
         Comparator<EventShortDto> comparator = Comparator.comparing(EventShortDto::getId);
 
-        if ((param.getSort() != null) && (param.getSort().equals(EventSort.EVENT_DATE))) {
-            comparator = Comparator.comparing(EventShortDto::getEventDate);
-        } else if ((param.getSort() != null) && (param.getSort().equals(EventSort.VIEWS))) {
-            comparator = Comparator.comparing(EventShortDto::getViews, Comparator.reverseOrder());
+        if (param.getSort() != null) {
+            // Сравниваем строки с именами элементов перечисления EventSort
+            if (param.getSort().equals(EventSort.EVENT_DATE.name())) {
+                comparator = Comparator.comparing(EventShortDto::getEventDate);
+            } else if (param.getSort().equals(EventSort.VIEWS.name())) {
+                comparator = Comparator.comparing(EventShortDto::getViews, Comparator.reverseOrder());
+            }
         }
 
         Map<Long, Long> view = getView(events, false);
