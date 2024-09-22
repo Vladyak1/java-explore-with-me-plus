@@ -6,15 +6,28 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Map;
+
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    private void log(Throwable e) {
+        log.error("Исключение {}: {}", e, e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleOtherExc(final Exception e) {
+        log(e);
+        return Map.of("error", "Unexpected error",
+                "errorMessage", e.getMessage());
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse errorBadRequest(final DataTimeException e) {
-        return new ErrorResponse(
-                e.getMessage()
-        );
+    public Map<String, String> errorBadRequest(final DataTimeException e) {
+        log(e);
+        return Map.of("error", e.getClass().getSimpleName(),
+                "errorMessage", e.getMessage());
     }
 }
