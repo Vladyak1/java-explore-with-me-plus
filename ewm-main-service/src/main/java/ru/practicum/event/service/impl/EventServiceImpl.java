@@ -35,6 +35,7 @@ import ru.practicum.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -149,31 +150,38 @@ public class EventServiceImpl implements EventService {
             Category category = categoryService.getCategoryByIdNotMapping(updateEvent.getCategory());
             eventSaved.setCategory(category);
         }
-        if (updateEvent.getDescription() != null) {
-            eventSaved.setDescription(updateEvent.getDescription());
-        }
-        if (updateEvent.getLocation() != null) {
-            eventSaved.setLat(updateEvent.getLocation().getLat());
-            eventSaved.setLon(updateEvent.getLocation().getLon());
-        }
-        if (updateEvent.getParticipantLimit() != null) {
-            eventSaved.setParticipantLimit(eventSaved.getParticipantLimit());
-        }
-        if (updateEvent.getPaid() != null) {
-            eventSaved.setPaid(updateEvent.getPaid());
-        }
-        if (updateEvent.getRequestModeration() != null) {
-            eventSaved.setRequestModeration(updateEvent.getRequestModeration());
-        }
-        if (updateEvent.getTitle() != null) {
-            eventSaved.setTitle((updateEvent.getTitle()));
-        }
+        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(), updateEvent.getParticipantLimit(), eventSaved.getParticipantLimit(), updateEvent.getPaid(), updateEvent.getRequestModeration(), updateEvent.getTitle(), updateEvent);
 
         Event eventUpdate = eventRepository.save(eventSaved);
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(eventUpdate);
         log.info("Событие ID = {} пользователя ID = {} успешно обновлено", eventId, userId);
         return eventFullDto;
+    }
+
+    // Метод для UpdateEventUserRequest
+    private void checkParams(Event eventSaved, String description, Location location, Integer participantLimit,
+                             Integer participantLimit2, Boolean paid, Boolean requestModeration, String title,
+                             UpdateEventUserRequest updateEvent) {
+        if (description != null) {
+            eventSaved.setDescription(description);
+        }
+        if (location != null) {
+            eventSaved.setLat(location.getLat());
+            eventSaved.setLon(location.getLon());
+        }
+        if (participantLimit != null) {
+            eventSaved.setParticipantLimit(participantLimit2);
+        }
+        if (paid != null) {
+            eventSaved.setPaid(paid);
+        }
+        if (requestModeration != null) {
+            eventSaved.setRequestModeration(requestModeration);
+        }
+        if (title != null) {
+            eventSaved.setTitle(title);
+        }
     }
 
     public List<ParticipationRequestDto> getRequestEventByUser(Long userId, Long eventId) {
@@ -221,6 +229,7 @@ public class EventServiceImpl implements EventService {
                     throw new DataConflictRequest("The limit on applications for this event has been reached");
                 } else {
                     for (ParticipationRequest request : requests) {
+                        assert requestMapper != null;
                         if (event.getConfirmedRequests() < event.getParticipantLimit()) {
                             request.setStatus(RequestStatus.CONFIRMED);
                             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
@@ -290,35 +299,41 @@ public class EventServiceImpl implements EventService {
             eventSaved.setAnnotation(updateEvent.getAnnotation());
         }
         if (updateEvent.getCategory() != null) {
+            assert categoryService != null;
             Category category = categoryService.getCategoryByIdNotMapping(updateEvent.getCategory());
             eventSaved.setCategory(category);
         }
-        if (updateEvent.getDescription() != null) {
-            eventSaved.setDescription(updateEvent.getDescription());
-        }
-        if (updateEvent.getLocation() != null) {
-            eventSaved.setLat(updateEvent.getLocation().getLat());
-            eventSaved.setLon(updateEvent.getLocation().getLon());
-        }
-        if (updateEvent.getParticipantLimit() != null) {
-            eventSaved.setParticipantLimit(updateEvent.getParticipantLimit());
-        }
-        if (updateEvent.getPaid() != null) {
-            eventSaved.setPaid(updateEvent.getPaid());
-        }
-        if (updateEvent.getRequestModeration() != null) {
-            eventSaved.setRequestModeration(updateEvent.getRequestModeration());
-        }
-        if (updateEvent.getTitle() != null) {
-            eventSaved.setTitle((updateEvent.getTitle()));
-        }
+        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(), updateEvent.getParticipantLimit(), updateEvent.getParticipantLimit(), updateEvent.getPaid(), updateEvent.getRequestModeration(), updateEvent.getTitle(), updateEvent);
 
         eventSaved = eventRepository.save(eventSaved);
 
+        assert eventMapper != null;
         EventFullDto eventFullDto = eventMapper.toEventFullDto(eventSaved);
 
         log.info("Событие ID = {} успешно обновлено от имени администратора", eventId);
         return eventFullDto;
+    }
+
+    private void checkParams(Event eventSaved, String description, Location location, Integer participantLimit, Integer participantLimit2, Boolean paid, Boolean requestModeration, String title, UpdateEventAdminRequest updateEvent) {
+        if (description != null) {
+            eventSaved.setDescription(description);
+        }
+        if (location != null) {
+            eventSaved.setLat(location.getLat());
+            eventSaved.setLon(location.getLon());
+        }
+        if (participantLimit != null) {
+            eventSaved.setParticipantLimit(participantLimit2);
+        }
+        if (paid != null) {
+            eventSaved.setPaid(paid);
+        }
+        if (requestModeration != null) {
+            eventSaved.setRequestModeration(requestModeration);
+        }
+        if (title != null) {
+            eventSaved.setTitle((title));
+        }
     }
 
     @Override
@@ -330,6 +345,7 @@ public class EventServiceImpl implements EventService {
             throw new InvalidRequestException("The start of the range must be before the end of the range.");
         }
 
+        assert eventRepository != null;
         List<Event> events = eventRepository.searchPublicEvents(param);
 
         Comparator<EventShortDto> comparator = Comparator.comparing(EventShortDto::getId);
@@ -358,6 +374,7 @@ public class EventServiceImpl implements EventService {
             List<Long> eventsId = events.stream()
                     .map(Event::getId)
                     .collect(Collectors.toList());
+            assert statsService != null;
             return statsService.getView(eventsId, unique);
         } else return new HashMap<>();
     }
@@ -400,12 +417,13 @@ public class EventServiceImpl implements EventService {
     }
 
 
-
     public EventFullDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
 
+        assert eventRepository != null;
         Event event = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Event must be published"));
 
+        assert eventMapper != null;
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
 
         log.info("Событие ID = {} успешно обновлено от имени администратора", id);
@@ -465,6 +483,7 @@ public class EventServiceImpl implements EventService {
     // Получение event по id
 
     public Event getEventById(Long eventId) {
+        assert eventRepository != null;
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
             return eventOptional.get();
@@ -474,6 +493,7 @@ public class EventServiceImpl implements EventService {
 
 
     public void addRequestToEvent(Event event) {
+        assert eventRepository != null;
         eventRepository.save(event);
     }
 
