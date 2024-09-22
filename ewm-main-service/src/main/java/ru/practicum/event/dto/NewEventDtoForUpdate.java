@@ -3,8 +3,8 @@ package ru.practicum.event.dto;
 import lombok.*;
 import ru.practicum.event.model.Location;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Setter

@@ -15,7 +15,6 @@ import ru.practicum.event.dto.EventMapper;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.service.EventService;
-import ru.practicum.event.service.EventStatisticService;
 
 import jakarta.transaction.Transactional;
 import java.util.*;
@@ -29,7 +28,6 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final CompilationMapper compilationMapper;
     private final EventService eventService;
-    private final EventStatisticService eventStatisticService;
     private final EventMapper eventMapper;
 
 
@@ -94,24 +92,10 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size) {
         List<Compilation> compilations = compilationRepository.findAllByIsPinned(pinned, PageRequest.of(from / size, size));
 
-        Set<Event> eventSet = new HashSet<>(); // так как не должно быть дублированных элементов!!
-        for (Compilation compilation : compilations) {
-            eventSet.addAll(compilation.getEvents());
-        }
-        List<Long> eventsId = eventSet.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Long> views = eventStatisticService.getEventsViews(eventsId);
-
         List<CompilationDto> compilationDtoList = new ArrayList<>();
         for (Compilation compilation : compilations) {
             List<Event> eventList = eventService.getAllEventsByListId(compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList()));
             List<EventShortDto> eventShortDtoList = eventList.stream().map(eventMapper::toEventShortDto).collect(Collectors.toList());
-            for (EventShortDto eventShortDto : eventShortDtoList) {
-                if (views.get(eventShortDto.getId()) == null) {
-                    eventShortDto.setViews(views.get(0L));
-                } else {
-                    eventShortDto.setViews(views.get(eventShortDto.getId()));
-                }
-            }
             CompilationDto compilationDto = compilationMapper.toCompilationDto(compilation);
             compilationDto.setEvents(eventShortDtoList);
             compilationDtoList.add(compilationDto);
@@ -124,13 +108,6 @@ public class CompilationServiceImpl implements CompilationService {
         CompilationDto compilationDto = compilationMapper.toCompilationDto(compilation);
         List<EventShortDto> eventsShortDto = eventList.stream().map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
-
-        Map<Long, Long> views = eventStatisticService.getEventsViews(eventsShortDto.stream()
-                .map(EventShortDto::getId)
-                .collect(Collectors.toList()));
-        for (EventShortDto eventShortDto : eventsShortDto) {
-            eventShortDto.setViews(views.get(eventShortDto.getId()));
-        }
         compilationDto.setEvents(eventsShortDto);
         return compilationDto;
     }
