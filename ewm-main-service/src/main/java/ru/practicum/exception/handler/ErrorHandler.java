@@ -40,11 +40,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleInternalServerError(final Exception e) {
-        log.error("{} - Status: {}, Description: {}, Timestamp: {}",
-                "SERVER ERROR", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), LocalDateTime.now());
+        log.error("SERVER ERROR - Status: {}, Description: {}, Timestamp: {}", HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getMessage(), LocalDateTime.now(), e);
+
 
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.name(), e.getMessage(),
-                "Internal Server Error", LocalDateTime.now().format(FORMATTER)), HttpStatus.INTERNAL_SERVER_ERROR);
+                "Internal Server Error " + e, LocalDateTime.now().format(FORMATTER)), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({ConflictException.class, DataIntegrityViolationException.class, NotUniqueException.class})
