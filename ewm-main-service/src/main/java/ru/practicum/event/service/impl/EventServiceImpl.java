@@ -257,8 +257,16 @@ public class EventServiceImpl implements EventService {
 
     // Часть admin
 
-    public List<EventFullDto> getAllEventsByAdmin(EventAdminParams eventAdminParams) {
 
+    @Override
+    public List<EventLongDto> getAllEventsByAdmin(EventAdminParams param) {
+        log.info("Запрос от администратора на получение событий");
+
+        List<Event> events = eventRepository.searchEventsForAdmin(param);
+        Map<Long, Long> view = getView(events, false);
+        return events.stream()
+                .map(e -> eventMapper.toLongDto(e, view.getOrDefault(e.getId(), 0L)))
+                .collect(Collectors.toList());
         //формируем условие выборки
        /* BooleanExpression conditions = makeEventsQueryConditionsForAdmin(eventAdminParams);
 
@@ -277,7 +285,7 @@ public class EventServiceImpl implements EventService {
         return eventsFullDto;
 
         */
-        return null;
+      //  return null;
     }
 
     @Transactional
@@ -555,7 +563,7 @@ public class EventServiceImpl implements EventService {
     }
 
     // Собираем условие по которому будем выбирать события из базы данных для запроса администратора
-    private static BooleanExpression makeEventsQueryConditionsForAdmin(EventAdminParams request) {
+  /*  private static BooleanExpression makeEventsQueryConditionsForAdmin(EventAdminParams request) {
         QEvent event = QEvent.event;
 
         List<BooleanExpression> conditions = new ArrayList<>();
@@ -606,6 +614,8 @@ public class EventServiceImpl implements EventService {
                 .get();
     }
 
+
+   */
     public List<Event> getAllEventsByListId(List<Long> eventsId) {
         return eventRepository.findAllById(eventsId);
     }

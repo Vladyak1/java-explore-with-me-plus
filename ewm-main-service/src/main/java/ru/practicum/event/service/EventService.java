@@ -28,7 +28,7 @@ public interface EventService {
                                                             EventRequestStatusUpdateRequest request);
 
     // Часть admin
-    List<EventFullDto> getAllEventsByAdmin(EventAdminParams eventAdminParams);
+    List<EventLongDto> getAllEventsByAdmin(EventAdminParams eventAdminParams);
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 
