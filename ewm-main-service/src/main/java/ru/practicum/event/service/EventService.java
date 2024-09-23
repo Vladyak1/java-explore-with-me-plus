@@ -38,7 +38,7 @@ public interface EventService {
     // Часть public
     List<EventShortDto> getAllEventsByUser(EventPublicParams eventPublicParams, HttpServletRequest httpServletRequest);
 
-    EventFullDto getEventDtoById(Long id, HttpServletRequest httpServletRequest);
+    EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest);
 
 
     // Вспомогательная часть

@@ -425,14 +425,14 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    public EventFullDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
+    public EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
 
         assert eventRepository != null;
         Event event = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Event must be published"));
 
         assert eventMapper != null;
-        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        EventLongDto eventFullDto = eventMapper.toLongDto(event);
 
         log.info("Событие ID = {} успешно обновлено от имени администратора", id);
         return eventFullDto;
