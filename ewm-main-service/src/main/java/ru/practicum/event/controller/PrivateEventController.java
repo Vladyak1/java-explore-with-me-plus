@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.dto.NewEventDto;
-import ru.practicum.event.dto.UpdateEventUserRequest;
+import ru.practicum.event.dto.*;
 import ru.practicum.event.service.EventService;
 import ru.practicum.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
@@ -30,7 +27,7 @@ public class PrivateEventController {
     private final EventService eventService;
 
     @PostMapping
-    public ResponseEntity<EventFullDto> createEvent(@PathVariable Long userId,
+    public ResponseEntity<EventLongDto> createEvent(@PathVariable Long userId,
                                                     @Valid @RequestBody NewEventDto newEventDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(userId, newEventDto));
     }
@@ -45,12 +42,12 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getEventForUserById(@PathVariable Long userId, @PathVariable Long eventId) {
+    public ResponseEntity<EventLongDto> getEventForUserById(@PathVariable Long userId, @PathVariable Long eventId) {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventOfUserById(userId, eventId));
     }
 
     @PatchMapping(value = "/{eventId}")
-    public ResponseEntity<EventFullDto> updateEventByUser(
+    public ResponseEntity<EventLongDto> updateEventByUser(
             @PathVariable Long userId, @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEventByUser(userId, eventId,

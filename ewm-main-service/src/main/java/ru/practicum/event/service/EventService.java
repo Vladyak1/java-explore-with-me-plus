@@ -16,11 +16,11 @@ public interface EventService {
     // Часть private
     List<EventShortDto> getAllEventOfUser(Long userId, Integer from, Integer size);
 
-    EventFullDto createEvent(Long userId, NewEventDto newEventDto);
+    EventLongDto createEvent(Long userId, NewEventDto newEventDto);
 
-    EventFullDto getEventOfUserById(Long userId, Long eventId);
+    EventLongDto getEventOfUserById(Long userId, Long eventId);
 
-    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
+    EventLongDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
     List<ParticipationRequestDto> getRequestEventByUser(Long userId, Long eventId);
 
@@ -30,7 +30,7 @@ public interface EventService {
     // Часть admin
     List<EventLongDto> getAllEventsByAdmin(EventAdminParams eventAdminParams);
 
-    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
+    EventLongDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 
 
     List<EventShortDto> getPublicEvents(EventPublicParams param);

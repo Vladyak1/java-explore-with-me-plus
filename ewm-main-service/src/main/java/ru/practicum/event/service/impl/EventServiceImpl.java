@@ -80,7 +80,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
+    public EventLongDto createEvent(Long userId, NewEventDto newEventDto) {
         User initiator = userService.findUserById(userId);
         Category category = categoryService.getCategoryByIdNotMapping(newEventDto.getCategory());
         Event event = eventMapper.toEvent(newEventDto);
@@ -95,17 +95,17 @@ public class EventServiceImpl implements EventService {
         event.setCreatedOn(LocalDateTime.now());
         event.setPublishedOn(LocalDateTime.now());
         event = eventRepository.save(event);
-        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        EventLongDto eventFullDto = eventMapper.toLongDto(event);
         log.info("Событию присвоен ID = {}, и оно успешно добавлено", event.getId());
         return eventFullDto;
     }
 
-    public EventFullDto getEventOfUserById(Long userId, Long eventId) {
+    public EventLongDto getEventOfUserById(Long userId, Long eventId) {
         userService.findUserById(userId);
         Optional<Event> optEventSaved = eventRepository.findByIdAndInitiatorId(eventId, userId);
-        EventFullDto eventFullDto;
+        EventLongDto eventFullDto;
         if (optEventSaved.isPresent()) {
-            eventFullDto = eventMapper.toEventFullDto(optEventSaved.get());
+            eventFullDto = eventMapper.toLongDto(optEventSaved.get());
         } else {
             throw new NotFoundException("The required object was not found.");
         }
@@ -114,7 +114,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEvent) {
+    public EventLongDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEvent) {
         userService.findUserById(userId);
         Optional<Event> optEventSaved = eventRepository.findByIdAndInitiatorId(eventId, userId);
         Event eventSaved;
@@ -154,7 +154,7 @@ public class EventServiceImpl implements EventService {
 
         Event eventUpdate = eventRepository.save(eventSaved);
 
-        EventFullDto eventFullDto = eventMapper.toEventFullDto(eventUpdate);
+        EventLongDto eventFullDto = eventMapper.toLongDto(eventUpdate);
         log.info("Событие ID = {} пользователя ID = {} успешно обновлено", eventId, userId);
         return eventFullDto;
     }
@@ -289,7 +289,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEvent) {
+    public EventLongDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEvent) {
         Optional<Event> optEventSaved = eventRepository.findById(eventId);
         Event eventSaved;
         if (optEventSaved.isPresent()) {
@@ -316,7 +316,7 @@ public class EventServiceImpl implements EventService {
         eventSaved = eventRepository.save(eventSaved);
 
         assert eventMapper != null;
-        EventFullDto eventFullDto = eventMapper.toEventFullDto(eventSaved);
+        EventLongDto eventFullDto = eventMapper.toLongDto(eventSaved);
 
         log.info("Событие ID = {} успешно обновлено от имени администратора", eventId);
         return eventFullDto;
