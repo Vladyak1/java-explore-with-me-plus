@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface CustomizedEventStorage {
     List<Event> searchEventsForAdmin(EventAdminParams param);
+
     List<Event> searchPublicEvents(EventPublicParams param);
 }
