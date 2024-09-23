@@ -14,13 +14,6 @@ public interface EventMapper {
     Event toEvent(NewEventDto newEventDto);
 
     @Mapping(target = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(target = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(target = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "lat", target = "location.lat")
-    @Mapping(source = "lon", target = "location.lon")
-    EventFullDto toEventFullDto(Event event);
-
-    @Mapping(target = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
     EventShortDto toEventShortDto(Event event);
 
     @Mapping(source = "views", target = "views")
