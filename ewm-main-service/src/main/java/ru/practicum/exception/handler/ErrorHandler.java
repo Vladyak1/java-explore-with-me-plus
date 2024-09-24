@@ -59,12 +59,11 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleNotFound(final RuntimeException e) {
+    public ResponseEntity<Void> handleNotFound(final RuntimeException e) {
         log.error("{} - Status: {}, Description: {}, Timestamp: {}",
                 "NOT FOUND", HttpStatus.NOT_FOUND, e.getMessage(), LocalDateTime.now());
 
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.name(), e.getMessage(),
-                "Not Found", LocalDateTime.now().format(FORMATTER)), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
