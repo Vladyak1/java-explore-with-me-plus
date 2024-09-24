@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.user.dto.AdminUserDto;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.NotUniqueException;
+import ru.practicum.user.dto.AdminUserDto;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserMainServiceRepository;
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.isEmpty()) {
             log.error("User with id {} not found", id);
-            throw new NotFoundException(String.format("User with id %d is not exist.", id));
+            throw new NotFoundException(String.format("User with id=%s was not found", id));
             //return new User();
         }
 

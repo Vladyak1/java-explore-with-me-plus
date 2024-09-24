@@ -13,7 +13,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.Formatter;
 import ru.practicum.exception.*;
 
 import java.io.PrintWriter;
@@ -21,7 +20,6 @@ import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -60,20 +58,13 @@ public class ErrorHandler {
                 HttpStatus.CONFLICT);
     }
 
-
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFound(final NotFoundException e) {
+    public ResponseEntity<ErrorResponse> errorNotFound(final RuntimeException e) {
         log.error("{} - Status: {}, Description: {}, Timestamp: {}",
                 "NOT FOUND", HttpStatus.NOT_FOUND, e.getMessage(), LocalDateTime.now());
-        return createMap("NOT_FOUND", "The required object was not found", e.getMessage());
-    }
-
-    private Map<String, String> createMap(String status, String reason, String message) {
-        return Map.of("status", status,
-                "reason", reason,
-                "message", message,
-                "timestamp", LocalDateTime.now().format(Formatter.getFormatter()));
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.name(), "The required object was not found.", e.getMessage(),
+                LocalDateTime.now().format(FORMATTER)), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
