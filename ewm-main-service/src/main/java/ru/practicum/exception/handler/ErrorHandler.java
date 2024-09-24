@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -59,11 +60,11 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<Void> handleNotFound(final RuntimeException e) {
+    public ResponseEntity<Object> handleNotFound(final RuntimeException e) {
         log.error("{} - Status: {}, Description: {}, Timestamp: {}",
                 "NOT FOUND", HttpStatus.NOT_FOUND, e.getMessage(), LocalDateTime.now());
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
