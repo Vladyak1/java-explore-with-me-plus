@@ -8,6 +8,7 @@ import ru.practicum.user.model.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -58,5 +59,5 @@ public class Event {
     @Column(name = "confirmed_requests")
     private Long confirmedRequests;
     @Column(name = "views")
-    private Long views;
+    private List<Long> views;
 }

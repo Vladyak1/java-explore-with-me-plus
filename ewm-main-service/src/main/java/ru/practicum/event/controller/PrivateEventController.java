@@ -42,7 +42,7 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventLongDto> getEventForUserById(@PathVariable Long userId, @PathVariable Long eventId) {
+    public ResponseEntity<EventFullDto> getEventForUserById(@PathVariable Long userId, @PathVariable Long eventId) {
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventOfUserById(userId, eventId));
     }
 

@@ -30,7 +30,6 @@ public class HitServiceImpl implements HitService {
         Hit hit = hitMapper.toHit(endpointHit);
         log.info("Сохранение в базу информации о запросе {}", hit);
         hit.setTimestamp(LocalDateTime.now());
-        // TODO поправить так чтобы в ДТО  EndpointHit было поле Timestamp
         Hit newHit = hitRepository.save(hit);
         return statsMapper.toCreationDto(newHit);
     }

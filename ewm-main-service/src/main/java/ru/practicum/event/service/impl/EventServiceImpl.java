@@ -25,7 +25,6 @@ import ru.practicum.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.mapper.RequestsMapper;
-import ru.practicum.request.model.*;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.request.service.RequestsService;
@@ -40,7 +39,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -94,23 +92,28 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.PENDING);
         event.setCreatedOn(LocalDateTime.now());
         event.setPublishedOn(LocalDateTime.now());
-        event.setViews(0L);
         event = eventRepository.save(event);
         EventLongDto eventFullDto = eventMapper.toLongDto(event);
         log.info("Событию присвоен ID = {}, и оно успешно добавлено", event.getId());
         return eventFullDto;
     }
 
-    public EventLongDto getEventOfUserById(Long userId, Long eventId) {
+    public EventFullDto getEventOfUserById(Long userId, Long eventId) {
         userService.findUserById(userId);
         Optional<Event> optEventSaved = eventRepository.findByIdAndInitiatorId(eventId, userId);
-        EventLongDto eventFullDto;
+        EventFullDto eventFullDto;
         if (optEventSaved.isPresent()) {
-            optEventSaved.get().setViews(optEventSaved.get().getViews() + 1L);
-            eventFullDto = eventMapper.toLongDto(optEventSaved.get());
+            eventFullDto = eventMapper.toEventFullDto(optEventSaved.get());
         } else {
             throw new NotFoundException("The required object was not found.");
         }
+        //Получаем и добавляем просмотры
+        Map<Long, Long> views = statsService.getView(List.of(eventFullDto).stream()
+                .map(EventFullDto::getId)
+                .collect(Collectors.toList()), true);
+
+        eventFullDto.setViews(views.get(eventFullDto.getId()));
+        //
 
         log.info("Выполнен поиск события с ID = {}", eventId);
         return eventFullDto;
@@ -270,25 +273,6 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(e -> eventMapper.toLongDto(e, view.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
-        //формируем условие выборки
-       /* BooleanExpression conditions = makeEventsQueryConditionsForAdmin(eventAdminParams);
-
-        //настройка размера страницы
-        PageRequest pageRequest = PageRequest.of(
-                eventAdminParams.getFrom() / eventAdminParams.getSize(), eventAdminParams.getSize());
-
-        //запрашиваем события из базы
-        List<Event> events = eventRepository.findAll(conditions, pageRequest).toList();
-
-        //Запрашиваем количество просмотров каждого события
-
-        List<EventFullDto> eventsFullDto = events.stream().map(eventMapper::toEventFullDto).collect(Collectors.toList());
-
-        log.info("События успешно выгружены");
-        return eventsFullDto;
-
-        */
-      //  return null;
     }
 
     @Transactional
@@ -391,42 +375,6 @@ public class EventServiceImpl implements EventService {
     }
 
     // Часть public
-    public List<EventShortDto> getAllEventsByUser(EventPublicParams request, HttpServletRequest httpServletRequest) {
-
-       /* if (request.getRangeStart() != null && request.getRangeEnd() != null
-                && request.getRangeStart().isAfter(request.getRangeEnd())) {
-            throw new InvalidRequestException("The start date of the event to be modified must be no earlier " +
-                    "than one hour from the date of publication.");
-        }
-
-        // Создаем условия выборки
-        Predicate conditions = makeEventsQueryConditionsForPublic(request);
-
-        // Пагинация и сортировка
-        PageRequest pageRequest = PageRequest.of(request.getFrom() / request.getSize(), request.getSize());
-
-        // Выполняем запрос в репозиторий с условиями и пагинацией
-        Page<Event> eventsPage = eventRepository.findAll(conditions, pageRequest);
-        List<Event> events = eventsPage.getContent();
-
-        // Обработка результатов
-        Map<Long, Long> eventToRequestsCount = getEventRequests(events);
-
-        List<EventShortDto> eventsShortDto = events.stream()
-                .map(eventMapper::toEventShortDto)
-                .collect(Collectors.toList());
-
-        for (EventShortDto eventShortDto : eventsShortDto) {
-            eventShortDto.setConfirmedRequests(eventToRequestsCount.get(eventShortDto.getId()));
-        }
-
-        log.info("События успешно выгружены");
-        return eventsShortDto.stream().sorted(new EventSortByEventDate()).collect(Collectors.toList());
-
-        */
-        return null;
-    }
-
 
     public EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
 
@@ -435,7 +383,31 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Event must be published"));
 
         assert eventMapper != null;
-        EventLongDto eventFullDto = eventMapper.toLongDto(event);
+        EventLongDto eventLongDto = eventMapper.toLongDto(event);
+
+        log.info("Событие ID = {} успешно обновлено от имени администратора", id);
+        return eventLongDto;
+    }
+
+    public EventFullDto getEventDtoByIdWithHit(Long id, HttpServletRequest httpServletRequest) {
+
+        assert eventRepository != null;
+        Event event = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
+                .orElseThrow(() -> new NotFoundException("Event must be published"));
+
+        List<Long> eventViews = event.getViews();
+        if (eventViews == null) {
+            eventViews = new ArrayList<>();
+        }
+        if (!eventViews.contains(id)) {
+            eventViews.add(id);
+            event.setViews(eventViews);
+            eventRepository.save(event);
+        }
+
+        assert eventMapper != null;
+        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        eventFullDto.setViews(Long.valueOf(eventViews.size()));
 
         log.info("Событие ID = {} успешно обновлено от имени администратора", id);
         return eventFullDto;
@@ -542,19 +514,6 @@ public class EventServiceImpl implements EventService {
         return condition;
     }
 
-
-    // Собираем количество одобренных заявок для каждого события
-    private Map<Long, Long> getEventRequests(List<Event> events) {
-        QParticipationRequest request = QParticipationRequest.participationRequest;
-
-        BooleanExpression condition = request.status.eq(RequestStatus.CONFIRMED).and(request.event.in(events));
-
-        Iterable<ParticipationRequest> reqs = requestService.findAll(condition);
-        return StreamSupport
-                .stream(reqs.spliterator(), false)
-                .collect(Collectors.groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
-    }
-
     // Компаратор для сортировки по дате события
     public static class EventSortByEventDate implements Comparator<EventShortDto> {
 
@@ -565,60 +524,6 @@ public class EventServiceImpl implements EventService {
 
     }
 
-    // Собираем условие по которому будем выбирать события из базы данных для запроса администратора
-  /*  private static BooleanExpression makeEventsQueryConditionsForAdmin(EventAdminParams request) {
-        QEvent event = QEvent.event;
-
-        List<BooleanExpression> conditions = new ArrayList<>();
-
-        // фильтрация по списку пользователь
-        if (request.getUsers() != null && !request.getUsers().isEmpty()) {
-            conditions.add(
-                    event.initiator.id.in(request.getUsers())
-            );
-        }
-
-        //    фильтрация событий по статусу
-        if (request.getStates() != null && !request.getStates().isEmpty()) {
-            List<EventState> states = request.getStates().stream().map(EventState::valueOf).collect(Collectors.toList());
-            conditions.add(
-                    QEvent.event.state.in(states)
-            );
-        }
-
-        // фильтрация по списку категорий
-        if (request.getCategories() != null && !request.getCategories().isEmpty()) {
-            conditions.add(
-                    event.category.id.in(request.getCategories())
-            );
-        }
-
-//         фильтрация по временному диапазону, если не указано начало, то выборку производим начиная с настоящего
-//         времени только в будущее
-        LocalDateTime rangeStart;
-        if (request.getRangeStart() != null) {
-            rangeStart = request.getRangeStart();
-        } else {
-            rangeStart = LocalDateTime.now();
-        }
-        conditions.add(
-                event.eventDate.goe(rangeStart)
-        );
-
-        if (request.getRangeEnd() != null) {
-            conditions.add(
-                    event.eventDate.loe(request.getRangeEnd())
-            );
-        }
-
-        return conditions
-                .stream()
-                .reduce(BooleanExpression::and)
-                .get();
-    }
-
-
-   */
     public List<Event> getAllEventsByListId(List<Long> eventsId) {
         return eventRepository.findAllById(eventsId);
     }

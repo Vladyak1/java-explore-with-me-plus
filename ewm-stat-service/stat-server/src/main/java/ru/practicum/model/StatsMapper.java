@@ -9,7 +9,5 @@ import ru.practicum.dto.EndpointHit;
 public interface StatsMapper {
     Hit toModel(EndpointHit createStatsDto);
 
-   //ViewStats toDto(ViewStats statsView);
-
     EndpointHit toCreationDto(Hit statsModel);
 }

@@ -18,7 +18,7 @@ public interface EventService {
 
     EventLongDto createEvent(Long userId, NewEventDto newEventDto);
 
-    EventLongDto getEventOfUserById(Long userId, Long eventId);
+    EventFullDto getEventOfUserById(Long userId, Long eventId);
 
     EventLongDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
@@ -36,7 +36,6 @@ public interface EventService {
     List<EventShortDto> getPublicEvents(EventPublicParams param);
 
     // Часть public
-    List<EventShortDto> getAllEventsByUser(EventPublicParams eventPublicParams, HttpServletRequest httpServletRequest);
 
     EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest);
 
@@ -50,4 +49,5 @@ public interface EventService {
 
     Optional<Event> findByCategory(Category category);
 
+    EventFullDto getEventDtoByIdWithHit(Long id, HttpServletRequest httpServletRequest);
 }

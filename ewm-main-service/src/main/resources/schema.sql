@@ -26,7 +26,7 @@ create table if not exists events
     paid                    BOOLEAN          NOT NULL,
     participant_limit       INTEGER          NOT NULL,
     request_moderation      BOOLEAN          NOT NULL,
-    views                   INTEGER,
+    views                   BIGINT[],
     state                   VARCHAR(255)     NOT NULL,
     initiator_id            INTEGER          NOT NULL REFERENCES users (id) ON delete CASCADE,
     category_id             INTEGER          NOT NULL REFERENCES categories (id),

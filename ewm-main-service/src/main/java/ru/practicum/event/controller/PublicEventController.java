@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.Formatter;
-import ru.practicum.event.dto.EventLongDto;
+import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventPublicParams;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.enums.EventState;
@@ -68,9 +68,9 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventLongDto> getEventDtoById(@PathVariable Long id,
+    public ResponseEntity<EventFullDto> getEventDtoById(@PathVariable Long id,
                                                         HttpServletRequest httpServletRequest) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventDtoById(id, httpServletRequest));
+        return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventDtoByIdWithHit(id, httpServletRequest));
     }
 }
