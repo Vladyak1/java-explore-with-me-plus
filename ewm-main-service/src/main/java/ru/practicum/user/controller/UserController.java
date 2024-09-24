@@ -37,14 +37,21 @@ public class UserController {
     }
 
 
+//    @DeleteMapping("/{userId}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
+//        log.info("Calling the DELETE request to /admin/users/{userId} endpoint");
+//        userService.deleteUser(userId);
+//        return ResponseEntity
+//                .status(HttpStatus.NO_CONTENT)
+//                .body("User deleted: " + userId);
+//    }
+
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
+    public void deleteUser(@PathVariable Long userId) {
         log.info("Calling the DELETE request to /admin/users/{userId} endpoint");
         userService.deleteUser(userId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body("User deleted: " + userId);
     }
 
     @GetMapping
