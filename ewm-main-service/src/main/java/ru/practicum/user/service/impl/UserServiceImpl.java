@@ -83,7 +83,8 @@ public class UserServiceImpl implements UserService {
 
         if (user.isEmpty()) {
             log.error("User with id {} not found", id);
-            throw new NotFoundException("User with id " + id + " not found");
+            //throw new NotFoundException("User with id " + id + " not found");
+            return new User();
         }
 
         log.info("User with id {} found", id);
