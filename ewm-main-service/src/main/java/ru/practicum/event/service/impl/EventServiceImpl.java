@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
         Optional<Event> optEventSaved = eventRepository.findByIdAndInitiatorId(eventId, userId);
         EventLongDto eventFullDto;
         if (optEventSaved.isPresent()) {
-            optEventSaved.get().setViews(optEventSaved.get().getViews()+1L);
+            optEventSaved.get().setViews(optEventSaved.get().getViews() + 1L);
             eventFullDto = eventMapper.toLongDto(optEventSaved.get());
         } else {
             throw new NotFoundException("The required object was not found.");
