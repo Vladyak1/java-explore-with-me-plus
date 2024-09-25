@@ -63,9 +63,9 @@ public class UserServiceImpl implements UserService {
             return allUsers;
         }
 
-        idList.forEach(this::findUserById);
+//        idList.forEach(this::findUserById);
 
-        List<User> users = userMainServiceRepository.findAllById(idList, pageable);
+        List<User> users = userMainServiceRepository.findAllByIdIn(idList, pageable);
         if (users.isEmpty()) {
             return List.of();
         }
