@@ -58,6 +58,7 @@ public class AdminEventController {
                 .size(size)
                 .pageable(PageRequest.of(page, size, sort))
                 .build();
+        log.info("Calling the GET request to /admin/events endpoint");
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsByAdmin(eventAdminParams));
     }
 
@@ -65,6 +66,7 @@ public class AdminEventController {
     public ResponseEntity<EventLongDto> updateEventByAdmin(
             @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
+        log.info("Calling the PATCH request to /admin/events/{} endpoint", eventId);
         return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEventByAdmin(eventId,
                 updateEventAdminRequest));
     }

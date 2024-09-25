@@ -63,6 +63,7 @@ public class PublicEventController {
                 .build();
         List<EventShortDto> events = eventService.getPublicEvents(eventPublicParams);
         statsService.createStats(request.getRequestURI(), request.getRemoteAddr());
+        log.info("Calling the GET request to /events endpoint");
         return ResponseEntity.status(HttpStatus.OK)
                 .body(events);
     }
@@ -70,7 +71,8 @@ public class PublicEventController {
     @GetMapping("/{id}")
     public ResponseEntity<EventFullDto> getEventDtoById(@PathVariable Long id,
                                                         HttpServletRequest httpServletRequest) {
-
+        log.info("Calling the GET request to /events/{} endpoint", id);
+        statsService.createStats(httpServletRequest.getRequestURI(), httpServletRequest.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventDtoByIdWithHit(id, httpServletRequest));
     }
 }

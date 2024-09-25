@@ -29,6 +29,7 @@ public class PrivateEventController {
     @PostMapping
     public ResponseEntity<EventLongDto> createEvent(@PathVariable Long userId,
                                                     @Valid @RequestBody NewEventDto newEventDto) {
+        log.info("Calling the POST request to /users/{userId}/events endpoint {}", newEventDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(userId, newEventDto));
     }
 
@@ -38,11 +39,14 @@ public class PrivateEventController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
         List<EventShortDto> listEvents = eventService.getAllEventOfUser(userId, from, size);
+        log.info("Calling the GET request to /users/{userId}/events endpoint for User {}", userId);
         return ResponseEntity.status(HttpStatus.OK).body(listEvents);
     }
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getEventForUserById(@PathVariable Long userId, @PathVariable Long eventId) {
+        log.info("Calling the GET request to /users/{userId}/events/{eventId} endpoint with userId {} and eventId {}",
+                userId, eventId);
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventOfUserById(userId, eventId));
     }
 
@@ -50,6 +54,7 @@ public class PrivateEventController {
     public ResponseEntity<EventLongDto> updateEventByUser(
             @PathVariable Long userId, @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
+        log.info("Calling the PATCH request to /users/{userId}/events/{eventId} endpoint {}", updateEventUserRequest);
         return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEventByUser(userId, eventId,
                 updateEventUserRequest));
     }
@@ -57,6 +62,7 @@ public class PrivateEventController {
     @GetMapping("/{eventId}/requests")
     public ResponseEntity<List<ParticipationRequestDto>> getRequestEventByUser(@PathVariable Long userId,
                                                                                @PathVariable Long eventId) {
+        log.info("Calling the GET request to /users/{userId}/events/{eventId}/requests endpoint with eventId {}", eventId);
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getRequestEventByUser(userId, eventId));
     }
 
@@ -65,6 +71,7 @@ public class PrivateEventController {
             @PathVariable Long userId,
             @PathVariable Long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequest request) {
+        log.info("Calling the PATCH request to /users/{userId}/events/{eventId}/requests endpoint with eventId {}", eventId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(eventService.changeRequestEventStatus(userId, eventId, request));
     }
