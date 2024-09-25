@@ -7,6 +7,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -29,7 +30,8 @@ public class ErrorHandler {
 
 
     @ExceptionHandler({MissingRequestHeaderException.class, MethodArgumentNotValidException.class,
-            BadRequestException.class, ConstraintViolationException.class, MissingServletRequestParameterException.class})
+            BadRequestException.class, ConstraintViolationException.class, MissingServletRequestParameterException.class,
+            HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(final Exception e) {
         log.error("{} - Status: {}, Description: {}, Timestamp: {}",
                 "Bad Request", HttpStatus.BAD_REQUEST, e.getMessage(), LocalDateTime.now());
