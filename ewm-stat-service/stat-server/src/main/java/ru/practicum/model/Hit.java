@@ -1,11 +1,11 @@
 package ru.practicum.model;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,6 +22,6 @@ public class Hit {
     private String app;
     private String uri;
     private String ip;
-    @Column(name = "timestamp")
+    @Column(name = "timestamp_hit")
     private LocalDateTime timestamp;
 }

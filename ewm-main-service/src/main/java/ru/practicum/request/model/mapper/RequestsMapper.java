@@ -6,7 +6,7 @@ import org.mapstruct.factory.Mappers;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.ParticipationRequest;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface RequestsMapper {
     RequestsMapper REQUESTS_MAPPER = Mappers.getMapper(RequestsMapper.class);
 

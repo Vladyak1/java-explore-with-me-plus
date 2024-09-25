@@ -6,6 +6,8 @@ import lombok.*;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserShortDto {
     @NotNull
     private Long id;

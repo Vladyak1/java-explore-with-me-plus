@@ -1,17 +1,21 @@
 package ru.practicum.request.service.impl;
 
+
+import com.querydsl.core.types.dsl.BooleanExpression;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.ParticipationRequest;
-import ru.practicum.request.model.RequestStatus;
+import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.request.model.mapper.RequestsMapper;
-import ru.practicum.request.request.RequestsRepository;
+import ru.practicum.request.repository.RequestsRepository;
 import ru.practicum.request.service.RequestsService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
@@ -77,4 +81,24 @@ public class RequestsServiceImpl implements RequestsService {
         request.setStatus(RequestStatus.CANCELED);
         return RequestsMapper.REQUESTS_MAPPER.toParticipationRequestDto(requestsRepository.save(request));
     }
+
+
+    @Override
+    public List<ParticipationRequest> getAllByEventId(Long eventId) {
+        return requestsRepository.findAllByEventId(eventId);
+    }
+
+    public List<ParticipationRequest> getAllByRequestIdIn(List<Long> requestsId) {
+        return requestsRepository.findAllByIdIn(requestsId);
+    }
+
+    public Iterable<ParticipationRequest> findAll(BooleanExpression conditions) {
+        return requestsRepository.findAll((Pageable) conditions);
+    }
+
+    public List<ParticipationRequest> saveAll(List<ParticipationRequest> requests) {
+        return requestsRepository.saveAll(requests);
+    }
+
+
 }

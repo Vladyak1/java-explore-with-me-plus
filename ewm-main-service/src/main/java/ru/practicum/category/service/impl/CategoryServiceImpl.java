@@ -1,4 +1,4 @@
-package ru.practicum.category.service;
+package ru.practicum.category.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,12 @@ import ru.practicum.category.dto.CategoryDtoRequest;
 import ru.practicum.category.dto.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.category.service.CategoryService;
+import ru.practicum.exception.ConflictException;
+import ru.practicum.exception.DataConflictRequest;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.event.service.EventService;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +28,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-//    private final EventService eventService;
+    private final EventService eventService;
 
     // Часть admin
 
+    @Transactional
     public CategoryDto createCategory(CategoryDtoRequest categoryDtoRequest) {
-        log.info("Категория {} успешно добавлен", categoryDtoRequest);
-        return categoryMapper.toCategoryDto(categoryRepository.save(categoryMapper.toCategory(categoryDtoRequest)));
+        log.info("Attempting to create new category: {}", categoryDtoRequest);
+
+        String categoryName = categoryDtoRequest.getName();
+        if (categoryRepository.existsByName(categoryName)) {
+            log.warn("Category with name '{}' already exists", categoryName);
+            throw new ConflictException("Category with name '" + categoryName + "' already exists");
+        }
+
+        Category category = categoryMapper.toCategory(categoryDtoRequest);
+        Category savedCategory = categoryRepository.save(category);
+        log.info("Created new category: {}", savedCategory);
+        return categoryMapper.toCategoryDto(savedCategory);
     }
 
     @Transactional
@@ -37,29 +53,31 @@ public class CategoryServiceImpl implements CategoryService {
         Optional<Category> category = categoryRepository.findById(catId);
         if (category.isEmpty()) {
             throw new NotFoundException("Category with id = " + catId + " was not found");
+        } else if (eventService.findByCategory(category.get()).isPresent()) {
+            throw new DataConflictRequest("Events are associated with the id = " + catId + " category");
         } else {
             categoryRepository.deleteById(catId);
             log.info("Категория с id = {}, успешно удалена", catId);
         }
-//        else if (eventService.findByCategory(category.get()).isPresent()) {
-//            throw new DataConflictRequest("Events are associated with the id = " + catId + " category");
-//        }
-
     }
 
     @Transactional
     public CategoryDto updateCategory(Long catId, CategoryDtoRequest categoryDtoRequest) {
-        Optional<Category> category = categoryRepository.findById(catId);
-        if (category.isEmpty()) {
-            throw new NotFoundException("Category with id = " + catId + " was not found");
-        } else {
-            Category categorySaved = category.get();
-            Category categoryNew = categoryMapper.toCategory(categoryDtoRequest);
-            categorySaved.setName(categoryNew.getName());
-            categorySaved = categoryRepository.save(categorySaved);
-            log.info("Категория с id = {} успешно обновлена", catId);
-            return categoryMapper.toCategoryDto(categorySaved);
+        log.info("Updating category with id: {}, new data: {}", catId, categoryDtoRequest);
+
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category with id = " + catId + " was not found"));
+
+        String newName = categoryDtoRequest.getName();
+        if (!category.getName().equals(newName) && categoryRepository.existsByName(newName)) {
+            log.warn("Attempt to change category name to an existing one: {}", newName);
+            throw new ConflictException("Category with name '" + newName + "' already exists");
         }
+
+        category.setName(newName);
+        Category updatedCategory = categoryRepository.save(category);
+        log.info("Category updated successfully: {}", updatedCategory);
+        return categoryMapper.toCategoryDto(updatedCategory);
     }
 
     // Часть public

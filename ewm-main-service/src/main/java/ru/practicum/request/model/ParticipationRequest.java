@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.event.model.Event;
+import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.user.model.User;
 
 import java.time.LocalDateTime;
