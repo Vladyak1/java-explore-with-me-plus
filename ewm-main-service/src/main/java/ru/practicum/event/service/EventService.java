@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public interface EventService {
 
-    // Часть private
     List<EventShortDto> getAllEventOfUser(Long userId, Integer from, Integer size);
 
     EventLongDto createEvent(Long userId, NewEventDto newEventDto);
@@ -27,7 +26,6 @@ public interface EventService {
     EventRequestStatusUpdateResult changeRequestEventStatus(Long userId, Long eventId,
                                                             EventRequestStatusUpdateRequest request);
 
-    // Часть admin
     List<EventLongDto> getAllEventsByAdmin(EventAdminParams eventAdminParams);
 
     EventLongDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
@@ -35,15 +33,7 @@ public interface EventService {
 
     List<EventShortDto> getPublicEvents(EventPublicParams param);
 
-    // Часть public
-
-    EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest);
-
-
-    // Вспомогательная часть
     Event getEventById(Long eventId);
-
-    void addRequestToEvent(Event event);
 
     List<Event> getAllEventsByListId(List<Long> eventsId);
 

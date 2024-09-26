@@ -66,8 +66,6 @@ public class EventServiceImpl implements EventService {
         this.statsService = statsService;
     }
 
-    // Часть private
-
     public List<EventShortDto> getAllEventOfUser(Long userId, Integer from, Integer size) {
         List<EventShortDto> eventsOfUser;
         userService.findUserById(userId);
@@ -156,7 +154,10 @@ public class EventServiceImpl implements EventService {
             Category category = categoryService.getCategoryByIdNotMapping(updateEvent.getCategory());
             eventSaved.setCategory(category);
         }
-        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(), updateEvent.getParticipantLimit(), eventSaved.getParticipantLimit(), updateEvent.getPaid(), updateEvent.getRequestModeration(), updateEvent.getTitle(), updateEvent);
+        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(),
+                updateEvent.getParticipantLimit(), eventSaved.getParticipantLimit(),
+                updateEvent.getPaid(), updateEvent.getRequestModeration(),
+                updateEvent.getTitle());
 
         Event eventUpdate = eventRepository.save(eventSaved);
 
@@ -167,8 +168,8 @@ public class EventServiceImpl implements EventService {
 
     // Метод для UpdateEventUserRequest
     private void checkParams(Event eventSaved, String description, Location location, Integer participantLimit,
-                             Integer participantLimit2, Boolean paid, Boolean requestModeration, String title,
-                             UpdateEventUserRequest updateEvent) {
+                             Integer participantLimit2, Boolean paid, Boolean requestModeration, String title
+                             ) {
         if (description != null) {
             eventSaved.setDescription(description);
         }
@@ -260,10 +261,6 @@ public class EventServiceImpl implements EventService {
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
 
-
-    // Часть admin
-
-
     @Override
     public List<EventLongDto> getAllEventsByAdmin(EventAdminParams param) {
         log.info("Запрос от администратора на получение событий");
@@ -298,7 +295,7 @@ public class EventServiceImpl implements EventService {
             Category category = categoryService.getCategoryByIdNotMapping(updateEvent.getCategory());
             eventSaved.setCategory(category);
         }
-        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(), updateEvent.getParticipantLimit(), updateEvent.getParticipantLimit(), updateEvent.getPaid(), updateEvent.getRequestModeration(), updateEvent.getTitle(), updateEvent);
+        checkParams(eventSaved, updateEvent.getDescription(), updateEvent.getLocation(), updateEvent.getParticipantLimit(), updateEvent.getParticipantLimit(), updateEvent.getPaid(), updateEvent.getRequestModeration(), updateEvent.getTitle());
 
         eventSaved = eventRepository.save(eventSaved);
 
@@ -309,27 +306,6 @@ public class EventServiceImpl implements EventService {
         return eventFullDto;
     }
 
-    private void checkParams(Event eventSaved, String description, Location location, Integer participantLimit, Integer participantLimit2, Boolean paid, Boolean requestModeration, String title, UpdateEventAdminRequest updateEvent) {
-        if (description != null) {
-            eventSaved.setDescription(description);
-        }
-        if (location != null) {
-            eventSaved.setLat(location.getLat());
-            eventSaved.setLon(location.getLon());
-        }
-        if (participantLimit != null) {
-            eventSaved.setParticipantLimit(participantLimit2);
-        }
-        if (paid != null) {
-            eventSaved.setPaid(paid);
-        }
-        if (requestModeration != null) {
-            eventSaved.setRequestModeration(requestModeration);
-        }
-        if (title != null) {
-            eventSaved.setTitle((title));
-        }
-    }
 
     @Override
     public List<EventShortDto> getPublicEvents(EventPublicParams param) {
@@ -373,8 +349,6 @@ public class EventServiceImpl implements EventService {
             return statsService.getView(eventsId, unique);
         } else return new HashMap<>();
     }
-
-    // Часть public
 
     public EventLongDto getEventDtoById(Long id, HttpServletRequest httpServletRequest) {
 

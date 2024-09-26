@@ -19,8 +19,6 @@ public class CompilationController {
 
     private final CompilationService compilationService;
 
-    // часть admin
-
     @PostMapping(value = "/admin/compilations")
     public ResponseEntity<CompilationDto> createCompilation(@Valid @RequestBody
                                                             NewCompilationDto newCompilationDto) {
@@ -40,9 +38,6 @@ public class CompilationController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(compilationService.updateCompilation(compId, updateCompilationRequest));
     }
-
-
-    // часть public
 
     @GetMapping("/compilations")
     public ResponseEntity<List<CompilationDto>> getAllCompilations(

@@ -30,9 +30,6 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventService eventService;
     private final EventMapper eventMapper;
 
-
-    // часть admin
-
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         List<Event> eventList;
         if (newCompilationDto.getEvents() != null) {
@@ -49,7 +46,6 @@ public class CompilationServiceImpl implements CompilationService {
         return mapperEventsAndSetView(compilation, eventList);
     }
 
-    @Transactional
     public void deleteCompilation(Long compId) {
         compilationRepository.findById(compId).orElseThrow(() ->
                 new NotFoundException("Compilation with id = " + compId + " was not found"));
@@ -76,8 +72,6 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Подборка с ID = {} успешно обновлена.", compId);
         return mapperEventsAndSetView(compilationSaved, eventList);
     }
-
-    // часть public
 
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
