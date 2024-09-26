@@ -30,8 +30,6 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
     private final EventService eventService;
 
-    // Часть admin
-
     @Transactional
     public CategoryDto createCategory(CategoryDtoRequest categoryDtoRequest) {
         log.info("Attempting to create new category: {}", categoryDtoRequest);
@@ -79,8 +77,6 @@ public class CategoryServiceImpl implements CategoryService {
         log.info("Category updated successfully: {}", updatedCategory);
         return categoryMapper.toCategoryDto(updatedCategory);
     }
-
-    // Часть public
 
     public List<CategoryDto> getAllCategories(Integer from, Integer size) {
         List<Category> categories;

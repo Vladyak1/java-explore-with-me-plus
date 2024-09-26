@@ -30,12 +30,12 @@ public class ParticipationRequest {
     @Column(name = "created_on", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE NOT NULL")
     private LocalDateTime created;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Event event;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User requester;
