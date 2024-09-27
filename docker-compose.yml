@@ -1,16 +1,20 @@
+version: '3.8'
+
 services:
   stats-server:
     build: ./ewm-stat-service/stat-server
     image: java-explore-with-me-stat-srv
-    container_name: ewm-stat-server
+    container_name: stats-server
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-stat-db:5432/ewmStatDB
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewmStatDB
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+    networks:
+      - ewm-network
 
   stats-db:
     image: postgres:14-alpine
@@ -21,6 +25,10 @@ services:
       - POSTGRES_DB=ewmStatDB
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+    volumes:
+      - stats-db-data:/var/lib/postgresql/data
+    networks:
+      - ewm-network
 
   ewm-service:
     build: ./ewm-main-service
@@ -32,9 +40,12 @@ services:
       - ewm-db
       - stats-server
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewmMainDB
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmMainDB
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+      - STATS_SERVER_URL=http://stats-server:9090
+    networks:
+      - ewm-network
 
   ewm-db:
     image: postgres:14-alpine
@@ -45,3 +56,15 @@ services:
       - POSTGRES_DB=ewmMainDB
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+    volumes:
+      - ewm-db-data:/var/lib/postgresql/data
+    networks:
+      - ewm-network
+
+volumes:
+  stats-db-data:
+  ewm-db-data:
+
+networks:
+  ewm-network:
+    driver: bridge

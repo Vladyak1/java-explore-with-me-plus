@@ -29,9 +29,8 @@ public class BaseClient {
         return makeAndSendRequest(HttpMethod.POST, "/hit", null, body);
     }
 
-    protected ResponseEntity<Object> get(Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.GET, "/stats?start={start}&end={end}&uris={uris}&unique={unique}",
-                parameters, null);
+    protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
+        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
     }
 
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path,
