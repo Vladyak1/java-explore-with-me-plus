@@ -31,10 +31,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
 
-
-    // Часть Private
-
-    // Добавление комментария к событию (может быть добавлен только к опубликованным событиям)
     @Override
     public CommentDto addCommentToEvent(Long authorId, Long eventId, CommentDto commentDto) {
         Comment comment = commentMapper.toComment(commentDto);
@@ -52,14 +48,12 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    // Получение комментария по ID
     @Override
     public CommentDto getCommentByUser(Long authorId, Long commentId) {
         log.info("Получение комментария с ID = {} для просмотра пользователем с ID = {}.", commentId, authorId);
         return commentMapper.toCommentDto(getCommentById(commentId));
     }
 
-    // Получение комментариев к событию
     @Override
     public List<CommentDto> getAllCommentsByEvent(Long eventId) {
         Event event = eventService.getEventById(eventId);
@@ -73,12 +67,11 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    // Обновление комментария по ID автором
     @Override
     public CommentDto updateCommentByUser(Long authorId, Long commentId, CommentDto commentDto) {
         Comment comment = getCommentById(commentId);
         User author = userService.findUserById(authorId);
-        if (comment.getAuthor().getId() == (author.getId())) {
+        if (comment.getAuthor().getId().equals(author.getId())) {
             comment.setText(commentDto.getText());
             comment.setCreate(LocalDateTime.now());
             log.info("Комментарий к событию ID = {} обновлен автором.", commentId);
@@ -89,11 +82,10 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    // Удавление комментария автором
     @Override
     public void deleteCommentByUser(Long authorId, Long commentId) {
         Comment comment = getCommentById(commentId);
-        if (comment.getAuthor().getId() == authorId) {
+        if (comment.getAuthor().getId().equals(authorId)) {
             log.info("Комментарий с ID = {}, успешно удален автором комментария с ID = {}.", commentId, authorId);
             commentRepository.deleteById(getCommentById(commentId).getId());
         } else {
@@ -101,10 +93,6 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-
-    // Часть Admin
-
-    // Обновление комментария администратором
     @Override
     public CommentDto updateCommentByAdmin(Long commentId, CommentDto commentDto) {
         Comment comment = getCommentById(commentId);
@@ -114,17 +102,12 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    // Удаление комментария администратором
     @Override
     public void deleteCommentByAdmin(Long commentId) {
         log.info("Комментарий с ID = {}, успешно удален администратором.", commentId);
         commentRepository.deleteById(getCommentById(commentId).getId());
     }
 
-
-    // Часть Public
-
-    // Получение всех комментариев к событию для публичного просмотра
     @Override
     public List<CommentDtoPublic> getAllCommentsByEventPublic(Long eventId) {
         Event event = eventService.getEventById(eventId);
@@ -138,8 +121,6 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-
-    // Вспомогательная часть
     public Comment getCommentById(Long commentId) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         if (commentOptional.isPresent()) {
