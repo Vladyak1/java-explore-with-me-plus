@@ -6,7 +6,7 @@ import ru.practicum.event.model.Event;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = org.mapstruct.MappingConstants.ComponentModel.SPRING)
 public interface EventMapper {
 
     @Mapping(source = "category", target = "category.id")

@@ -43,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
             log.info("Добавлен новый комментарий к событию ID = {} пользователем c ID = {}.", eventId, authorId);
             return commentMapper.toCommentDto(commentRepository.save(comment));
         } else {
-            log.info("Добавление комментария невозможно, событие ID = {} не опубликовано.", eventId);
+            log.error("Добавление комментария невозможно, событие ID = {} не опубликовано.", eventId);
             throw new DataConflictRequest("The event has not been published yet.");
         }
     }
@@ -62,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
             log.info("Получение комментариев к событию с ID = {}.", eventId);
             return comments.stream().map(commentMapper::toCommentDto).collect(Collectors.toList());
         } else {
-            log.info("Комментирование события с ID = {} пока не доступно, оно не опубликовано.", eventId);
+            log.error("Комментирование события с ID = {} пока не доступно, оно не опубликовано.", eventId);
             throw new DataConflictRequest("The event has not been published yet. Commenting is not available.");
         }
     }
@@ -77,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
             log.info("Комментарий к событию ID = {} обновлен автором.", commentId);
             return commentMapper.toCommentDto(commentRepository.save(comment));
         } else {
-            log.info("Изменение комментария ID = {} невозможно, пользователь не является автором.", commentId);
+            log.error("Изменение комментария ID = {} невозможно, пользователь не является автором.", commentId);
             throw new DataConflictRequest("The user is not the author of the comment.");
         }
     }
@@ -116,7 +116,7 @@ public class CommentServiceImpl implements CommentService {
             log.info("Получение комментариев к событию с ID = {}.", eventId);
             return comments.stream().map(commentMapper::toCommentDtoPublic).collect(Collectors.toList());
         } else {
-            log.info("Комментирование события с ID = {} пока не доступно, оно не опубликовано.", eventId);
+            log.error("Комментирование события с ID = {} пока не доступно, оно не опубликовано.", eventId);
             throw new DataConflictRequest("The event has not been published yet. Commenting is not available.");
         }
     }
